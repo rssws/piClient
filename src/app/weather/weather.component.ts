@@ -26,7 +26,7 @@ export class WeatherComponent implements OnInit {
     this.updateWeather();
     setInterval(() => {
       this.updateWeather();
-    }, 1000 * 3600);
+    }, 1000 * 60 * 10);
   }
 
   updateWeather(): void {
