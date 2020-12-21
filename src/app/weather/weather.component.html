@@ -1,29 +1,34 @@
-<div class="container-fluid">
-  <div class="row">
+<div class="d-flex align-self-stretch justify-content-center h-100">
+  <div class="row d-flex justify-content-around align-items-center w-100" *ngIf="weatherResponse$ | async as weatherResponse else loading">
 
-    <div class="col-5 d-flex flex-column justify-content-center">
-      <img width="140"
-           height="140"
-           src='{{ "http://openweathermap.org/img/wn/" + weatherResponse.weather.icon + "@4x.png" }}'
-           class="mx-auto"
-           alt="Responsive image">
-
+    <div class="col-6 p-0 d-flex flex-column h-100 justify-content-center" style="margin-top: -7vw">
       <div class="d-flex flex-column justify-content-center">
-        <h6 class="m-0 mx-auto">{{weatherResponse.weather.description}}</h6>
-        <h3 class="m-0 mx-auto">
-          {{(weatherResponse.weather.tempMin - 273.15).toFixed(0).replace('-0', '0')}} -
+        <img width="60%"
+             height="auto"
+             src='{{ "http://openweathermap.org/img/wn/" + weatherResponse.weather.icon + "@4x.png" }}'
+             class="mx-auto"
+             alt="weather icon"/>
+      </div>
+      <div class="d-flex flex-column justify-content-center">
+        <p class="m-0 mx-auto display-5">{{weatherResponse.weather.description}}</p>
+        <p class="m-0 mx-auto display-4">
+          {{(weatherResponse.weather.tempMin - 273.15).toFixed(0).replace('-0', '0')}} ～
           {{(weatherResponse.weather.tempMax - 273.15).toFixed(0).replace('-0', '0')}} °C
-        </h3>
+        </p>
       </div>
     </div>
 
-    <div class="col-7 d-flex flex-column justify-content-center">
-      <h3 class="mt-5 display-4">{{city}}</h3>
-      <h1 class="mt-0 display-2">
+    <div class="col-6 p-0 d-flex flex-column p-0 h-100 justify-content-center">
+      <p class="m-0 display-2" [style.fontSize]="cityNameFontSize">{{city}}</p>
+      <p class="m-0 display-1">
         {{(weatherResponse.weather.temp - 273.15).toFixed(0).replace('-0', '0')}} °C
-      </h1>
-
+      </p>
     </div>
   </div>
 
+  <ng-template #loading>
+    <div class="d-flex flex-column justify-content-center">
+      Loading...
+    </div>
+  </ng-template>
 </div>
