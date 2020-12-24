@@ -1,4 +1,4 @@
-<div class="d-flex align-self-stretch justify-content-center h-100">
+<div class="d-flex align-self-stretch justify-content-center h-100" *ngIf="currentPage === 0">
   <div class="row d-flex justify-content-around align-items-center w-100" *ngIf="weatherResponse$ | async as weatherResponse else loading">
 
     <div class="col-6 p-0 d-flex flex-column h-100 justify-content-center" style="margin-top: -7vw">
@@ -28,7 +28,46 @@
 
   <ng-template #loading>
     <div class="d-flex flex-column justify-content-center">
-      Loading...
+      <div class="spinner-grow text-light" style="width: 3rem; height: 3rem;" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
+    </div>
+  </ng-template>
+</div>
+
+<div class="d-flex align-self-stretch justify-content-center h-100 overflow-hidden" *ngIf="currentPage === 1">
+  <div class="column d-flex flex-column align-items-stretch w-100" *ngIf="weatherResponse$ | async as weatherResponse else loading">
+    <div class="px-3 py-2 border-bottom border-dark flex-row justify-content-between d-flex">
+      <div class="align-self-center display-6 badge badge-info">7-Day Forecast</div>
+      <div class="align-self-center display-6 badge badge-dark">{{city}}</div>
+    </div>
+    <div class="px-4 py-3 flex-grow-1 d-flex flex-column justify-content-around align-items-stretch"
+         [style.padding-vertical]="'5vh'">
+      <div class="display-6 row" *ngFor="let dayForecast of sevenDayForecast">
+        <div class="col-6 d-flex flex-column justify-content-center">
+          {{dayForecast.dayOfTheWeek}}
+        </div>
+        <div class="col-4" style="margin: -3vh"
+             [style.background-image]="'url(http://openweathermap.org/img/wn/' + dayForecast.icon + '@4x.png)'"
+             [style.background-position]="'center center'"
+             [style.background-size]="'contain'"
+             [style.background-repeat]="'no-repeat'">
+        </div>
+        <div class="col-1 text-right">
+          {{dayForecast.tempMin}}
+        </div>
+        <div class="col-1 text-right">
+          {{dayForecast.tempMax}}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #loading>
+    <div class="d-flex flex-column justify-content-center">
+      <div class="spinner-grow text-light" style="width: 3rem; height: 3rem;" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
     </div>
   </ng-template>
 </div>

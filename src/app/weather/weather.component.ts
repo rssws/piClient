@@ -22,6 +22,17 @@ export class WeatherComponent implements OnInit {
   weatherResponse: WeatherResponse;
   cityNameFontSize: string;
 
+  currentPage = 0;
+  sevenDayForecast = [
+    {dayOfTheWeek: 'Friday', icon: '10n', tempMin: -3, tempMax: 2},
+    {dayOfTheWeek: 'Saturday', icon: '13n', tempMin: -3, tempMax: 2},
+    {dayOfTheWeek: 'Sunday', icon: '13n', tempMin: -3, tempMax: 2},
+    {dayOfTheWeek: 'Monday', icon: '10n', tempMin: -3, tempMax: 2},
+    {dayOfTheWeek: 'Tuesday', icon: '11n', tempMin: -3, tempMax: 2},
+    {dayOfTheWeek: 'Wednesday', icon: '13n', tempMin: -3, tempMax: 2},
+    {dayOfTheWeek: 'Thursday', icon: '11n', tempMin: -3, tempMax: 2}
+  ];
+
   constructor(
     private http: HttpClient,
     private route: ActivatedRoute
@@ -48,6 +59,9 @@ export class WeatherComponent implements OnInit {
     setInterval(() => {
       this.updateWeather();
     }, 1000 * 60 * 10);
+    setInterval(() => {
+      this.currentPage = (this.currentPage + 1) % 2;
+    }, 1000 * 10);
   }
 
   updateWeather(): void {
@@ -56,11 +70,12 @@ export class WeatherComponent implements OnInit {
     } else if (this.city.length > 10) {
       this.cityNameFontSize = '10w';
     } else {
-      this.cityNameFontSize = '14vw';
+      this.cityNameFontSize = '13vw';
     }
 
     this.weatherResponse$ = this.http
       .get<WeatherResponse>(this.baseUrl + this.city + '/' + this.apiKey);
+    // TODO: add retry function
     // this.weatherResponse$.subscribe(r => this.weatherResponse = r);
     // if (this.weatherResponse === undefined) {
     //   this.weatherResponse = new WeatherResponse();
