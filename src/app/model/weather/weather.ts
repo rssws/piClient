@@ -1,4 +1,5 @@
 export class Weather {
+  dt: number;
   description: string;
   icon: string;
   temp: number;

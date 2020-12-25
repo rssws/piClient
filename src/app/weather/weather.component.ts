@@ -3,7 +3,10 @@ import { Observable } from 'rxjs';
 import { WeatherResponse } from '../model/weather/weather-response';
 import { HttpClient } from '@angular/common/http';
 import { Weather } from '../model/weather/weather';
-import { Router, ActivatedRoute, ParamMap } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
+import {DailyWeatherResponse} from '../model/weather/daily-weather-response';
+import {Coord} from '../model/weather/coord';
+import {finalize} from 'rxjs/operators';
 
 @Component({
   selector: 'app-weather',
@@ -11,27 +14,25 @@ import { Router, ActivatedRoute, ParamMap } from '@angular/router';
   styleUrls: ['./weather.component.css']
 })
 export class WeatherComponent implements OnInit {
+  baseUrl = 'https://pi.zhongpin.wang/api/';
 
+  weatherResponse: WeatherResponse;
   weatherResponse$: Observable<WeatherResponse>;
-  baseUrl = 'https://pi.zhongpin.wang/api/weather/city/';
+  weatherResponseLoading = true;
+  dailyWeatherResponse: DailyWeatherResponse;
+  dailyWeatherResponse$: Observable<DailyWeatherResponse>;
+  dailyWeatherResponseLoading = true;
+
   // baseUrl = 'http://localhost:31415/weather/city/';
   // baseUrl = 'http://127.0.0.1/';
   // city = 'Hellschen-Heringsand-Unterschaar';
   city = 'Munich';
   apiKey = '0jbQxUhhH5WUnp66BUuEkSSrqQExxg7DLNXVPRR0XVFWkOgOEBY30IZ8lg7Ej6EN';
-  weatherResponse: WeatherResponse;
+
   cityNameFontSize: string;
 
   currentPage = 0;
-  sevenDayForecast = [
-    {dayOfTheWeek: 'Friday', icon: '10n', tempMin: -3, tempMax: 2},
-    {dayOfTheWeek: 'Saturday', icon: '13n', tempMin: -3, tempMax: 2},
-    {dayOfTheWeek: 'Sunday', icon: '13n', tempMin: -3, tempMax: 2},
-    {dayOfTheWeek: 'Monday', icon: '10n', tempMin: -3, tempMax: 2},
-    {dayOfTheWeek: 'Tuesday', icon: '11n', tempMin: -3, tempMax: 2},
-    {dayOfTheWeek: 'Wednesday', icon: '13n', tempMin: -3, tempMax: 2},
-    {dayOfTheWeek: 'Thursday', icon: '11n', tempMin: -3, tempMax: 2}
-  ];
+  currentTimer = 0;
 
   constructor(
     private http: HttpClient,
@@ -56,12 +57,22 @@ export class WeatherComponent implements OnInit {
     this.weatherResponse.weather.temp = undefined;
 
     this.updateWeather();
+
     setInterval(() => {
       this.updateWeather();
-    }, 1000 * 60 * 10);
+    }, 1000 * 60 * 30);
+
     setInterval(() => {
-      this.currentPage = (this.currentPage + 1) % 2;
-    }, 1000 * 10);
+      this.updateDailyWeather(this.weatherResponse.coord);
+    }, 1000 * 60 * 60);
+
+    setInterval(() => {
+      this.currentTimer += 1;
+      if (this.currentTimer === 1000) {
+        this.currentTimer = 0;
+        this.currentPage = (this.currentPage + 1) % 2;
+      }
+    }, 10);
   }
 
   updateWeather(): void {
@@ -73,19 +84,38 @@ export class WeatherComponent implements OnInit {
       this.cityNameFontSize = '13vw';
     }
 
+    this.weatherResponseLoading = true;
+
     this.weatherResponse$ = this.http
-      .get<WeatherResponse>(this.baseUrl + this.city + '/' + this.apiKey);
-    // TODO: add retry function
-    // this.weatherResponse$.subscribe(r => this.weatherResponse = r);
-    // if (this.weatherResponse === undefined) {
-    //   this.weatherResponse = new WeatherResponse();
-    //   this.weatherResponse.weather = new Weather();
-    //   this.weatherResponse.weather.description = 'rain';
-    //   this.weatherResponse.weather.icon = '10d';
-    //   this.weatherResponse.weather.tempMax = 283;
-    //   this.weatherResponse.weather.tempMin = 277;
-    //   this.weatherResponse.weather.temp = 279;
-    // }
+      .get<WeatherResponse>(this.baseUrl + 'weather/city/' + this.city + '/' + this.apiKey);
+
+    this.weatherResponse$
+      .pipe(finalize(() => this.weatherResponseLoading = false))
+      .subscribe(r => this.weatherResponse = r);
+
+    // call updateDailyWeather for the first time
+    if (this.dailyWeatherResponse === undefined) {
+      this.weatherResponse$.subscribe(r => {
+        this.updateDailyWeather(r.coord);
+      });
+    }
+
+  }
+
+  updateDailyWeather(coord: Coord): void {
+    this.dailyWeatherResponseLoading = true;
+    this.dailyWeatherResponse$ = this.http
+      .get<DailyWeatherResponse>(
+        this.baseUrl +
+        'dailyWeather/coord/' +
+        coord.lat +
+        '/' + coord.lon +
+        '/' + this.apiKey);
+    this.dailyWeatherResponse$
+      .pipe(finalize(() => this.dailyWeatherResponseLoading = false))
+      .subscribe(r => {
+        this.dailyWeatherResponse = r;
+      });
   }
 
 }
