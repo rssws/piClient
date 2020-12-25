@@ -36,11 +36,11 @@
 
 <div class="d-flex align-self-stretch justify-content-center h-100 overflow-hidden" *ngIf="currentPage === 1">
   <div class="column d-flex flex-column align-items-stretch w-100" *ngIf="!dailyWeatherResponseLoading else loading">
-    <div class="px-3 py-2 border-bottom border-dark flex-row justify-content-between d-flex">
+    <div class="px-3 py-2 flex-row justify-content-between d-flex">
       <div class="align-self-center display-6 badge badge-info">7-Day Forecast</div>
       <div class="align-self-center display-6 badge badge-dark">{{city}}</div>
     </div>
-    <div class="px-4 py-2 mx-3 flex-grow-1 d-flex flex-column justify-content-around align-items-stretch"
+    <div class="px-3 pb-3 pt-1 mx-3 flex-grow-1 d-flex flex-column justify-content-around align-items-stretch"
          [style.padding-vertical]="'5vh'">
       <div class="display-6 flex-column d-flex flex-grow-1" *ngFor="let dw of dailyWeatherResponse.dailyWeather.weathers; let i = index">
         <div class="row align-self-stretch flex-grow-1 {{i % 2 === 0 ? 'text-dark' : 'text-light'}}" [style.background-color]="i % 2 === 0 ? '#ddd': '#a1baa7'">
@@ -57,10 +57,10 @@
                [style.background-size]="'contain'"
                [style.background-repeat]="'no-repeat'">
           </div>
-          <div class="col-1 text-right d-flex flex-column justify-content-center display-5">
+          <div class="col-1 text-right d-flex flex-column justify-content-center display-6">
             {{(dw.tempMin - 273.15).toFixed(0).replace('-0', '0')}}
           </div>
-          <div class="col-1 text-right d-flex flex-column justify-content-center  display-5">
+          <div class="col-1 text-right d-flex flex-column justify-content-center  display-6">
             {{(dw.tempMax - 273.15).toFixed(0).replace('-0', '0')}}
           </div>
         </div>
@@ -77,6 +77,6 @@
   </ng-template>
 </div>
 
-<div class="fixed-bottom bg-secondary" style="height: 2px;">
-  <div class="bg-primary" [style.height.%]="100" [style.width.%]='this.currentTimer/10'></div>
+<div class="fixed-bottom bg-secondary" style="height: 5px;">
+  <div class="bg-light" [style.height.%]="100" [style.width.%]='this.currentTimer/10'></div>
 </div>
