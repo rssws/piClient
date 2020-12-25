@@ -1,12 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
 import { WeatherResponse } from '../model/weather/weather-response';
-import { HttpClient } from '@angular/common/http';
 import { Weather } from '../model/weather/weather';
 import { ActivatedRoute } from '@angular/router';
 import {DailyWeatherResponse} from '../model/weather/daily-weather-response';
 import {Coord} from '../model/weather/coord';
 import {finalize} from 'rxjs/operators';
+import {WeatherService} from './weather.service';
 
 @Component({
   selector: 'app-weather',
@@ -14,20 +13,17 @@ import {finalize} from 'rxjs/operators';
   styleUrls: ['./weather.component.css']
 })
 export class WeatherComponent implements OnInit {
-  baseUrl = 'https://pi.zhongpin.wang/api/';
 
   weatherResponse: WeatherResponse;
-  weatherResponse$: Observable<WeatherResponse>;
   weatherResponseLoading = true;
   dailyWeatherResponse: DailyWeatherResponse;
-  dailyWeatherResponse$: Observable<DailyWeatherResponse>;
   dailyWeatherResponseLoading = true;
 
   // baseUrl = 'http://localhost:31415/weather/city/';
   // baseUrl = 'http://127.0.0.1/';
   // city = 'Hellschen-Heringsand-Unterschaar';
-  city = 'Munich';
-  apiKey = '0jbQxUhhH5WUnp66BUuEkSSrqQExxg7DLNXVPRR0XVFWkOgOEBY30IZ8lg7Ej6EN';
+  city = undefined;
+  cityShort = undefined;
 
   cityNameFontSize: string;
 
@@ -35,7 +31,7 @@ export class WeatherComponent implements OnInit {
   currentTimer = 0;
 
   constructor(
-    private http: HttpClient,
+    private weatherService: WeatherService,
     private route: ActivatedRoute
   ) { }
 
@@ -56,7 +52,7 @@ export class WeatherComponent implements OnInit {
     this.weatherResponse.weather.tempMin = undefined;
     this.weatherResponse.weather.temp = undefined;
 
-    this.updateWeather();
+    this.city = this.updateCityName();
 
     setInterval(() => {
       this.updateWeather();
@@ -75,27 +71,46 @@ export class WeatherComponent implements OnInit {
     }, 10);
   }
 
+  updateCityName(): void {
+    const jsonResponse$ = this.weatherService.getLocationByIP();
+    jsonResponse$.subscribe(
+      response => {
+        const data = JSON.stringify(response);
+        const jsonResponse = JSON.parse(data);
+        if (jsonResponse === null || jsonResponse === undefined || jsonResponse.ipGeolocation === undefined) {
+          this.city = 'Berlin, DE';
+          this.cityShort = 'Berlin';
+        } else {
+          console.log(jsonResponse);
+          this.city = jsonResponse.ipGeolocation.city + ', ' + jsonResponse.ipGeolocation.countryCode;
+          this.cityShort = jsonResponse.ipGeolocation.city;
+        }
+        this.updateWeather();
+    },
+        error => {
+        alert('Error: ' + error.name + '\nError Message: ' + error.message);
+    });
+  }
+
   updateWeather(): void {
-    if (this.city.length > 15) {
-      this.cityNameFontSize = '7vw';
-    } else if (this.city.length > 10) {
-      this.cityNameFontSize = '10w';
+    if (this.city.length > 12) {
+      this.cityNameFontSize = '6vw';
+    } else if (this.city.length > 7) {
+      this.cityNameFontSize = '8vw';
     } else {
-      this.cityNameFontSize = '13vw';
+      this.cityNameFontSize = '10vw';
     }
 
     this.weatherResponseLoading = true;
 
-    this.weatherResponse$ = this.http
-      .get<WeatherResponse>(this.baseUrl + 'weather/city/' + this.city + '/' + this.apiKey);
-
-    this.weatherResponse$
+    const weatherResponse$ = this.weatherService.getWeatherResponseByCity(this.city);
+    weatherResponse$
       .pipe(finalize(() => this.weatherResponseLoading = false))
       .subscribe(r => this.weatherResponse = r);
 
     // call updateDailyWeather for the first time
     if (this.dailyWeatherResponse === undefined) {
-      this.weatherResponse$.subscribe(r => {
+      weatherResponse$.subscribe(r => {
         this.updateDailyWeather(r.coord);
       });
     }
@@ -104,18 +119,11 @@ export class WeatherComponent implements OnInit {
 
   updateDailyWeather(coord: Coord): void {
     this.dailyWeatherResponseLoading = true;
-    this.dailyWeatherResponse$ = this.http
-      .get<DailyWeatherResponse>(
-        this.baseUrl +
-        'dailyWeather/coord/' +
-        coord.lat +
-        '/' + coord.lon +
-        '/' + this.apiKey);
-    this.dailyWeatherResponse$
+    const dailyWeatherResponse$ = this.weatherService.getDailyWeatherResponseByCoord(coord);
+    dailyWeatherResponse$
       .pipe(finalize(() => this.dailyWeatherResponseLoading = false))
       .subscribe(r => {
         this.dailyWeatherResponse = r;
       });
   }
-
 }

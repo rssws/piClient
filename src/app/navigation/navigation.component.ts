@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { version } from '../../../package.json';
 
 @Component({
   selector: 'app-navigation',
@@ -7,6 +8,7 @@ import { Component, OnInit } from '@angular/core';
 })
 export class NavigationComponent implements OnInit {
 
+  version: string = version;
   today: number = Date.now();
 
   constructor() {}
