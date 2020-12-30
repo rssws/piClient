@@ -1,5 +1,20 @@
 # PiClient
+This project is originally intened to make raspberry pi as a weather display device. Since it is written in typescript with Angular framework, there is no problem to access the frontend pages on any device. Although, the responsive design is more suitable for landscape mode (and small display). The location is based on ip address using 3-rd API. 
 
+For more information about the backend, please refer to: [https://github.com/rssws/piService](https://github.com/rssws/piService)
+
+Demo: [https://pi.zhongpin.wang](https://pi.zhongpin.wang)
+
+## Screenshots:
+Resolution: 480x320
+
+![default page](/docs/images/default-page.png?raw=true "default page")
+
+![daily forecast](/docs/images/daily-forecast.png?raw=true "daily forecast")
+
+![hourly forecast](/docs/images/hourly-forecast.png?raw=true "hourly forecast")
+
+# Angular Helper
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 11.0.4.
 
 ## Development server
