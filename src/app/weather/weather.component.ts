@@ -14,18 +14,13 @@ import {WeatherService} from './weather.service';
 })
 export class WeatherComponent implements OnInit {
 
-  weatherResponse: WeatherResponse;
-  weatherResponseLoading = true;
-  dailyWeatherResponse: DailyWeatherResponse;
-  dailyWeatherResponseLoading = true;
 
   // baseUrl = 'http://localhost:31415/weather/city/';
   // baseUrl = 'http://127.0.0.1/';
   // city = 'Hellschen-Heringsand-Unterschaar';
   city = undefined;
   cityShort = undefined;
-
-  cityNameFontSize: string;
+  coord = undefined;
 
   currentPage = 0;
   currentTimer = 0;
@@ -44,23 +39,7 @@ export class WeatherComponent implements OnInit {
       }
     });
 
-    this.weatherResponse = new WeatherResponse();
-    this.weatherResponse.weather = new Weather();
-    this.weatherResponse.weather.description = 'rain';
-    this.weatherResponse.weather.icon = '';
-    this.weatherResponse.weather.tempMax = undefined;
-    this.weatherResponse.weather.tempMin = undefined;
-    this.weatherResponse.weather.temp = undefined;
-
-    this.city = this.updateCityName();
-
-    setInterval(() => {
-      this.updateWeather();
-    }, 1000 * 60 * 30);
-
-    setInterval(() => {
-      this.updateDailyWeather(this.weatherResponse.coord);
-    }, 1000 * 60 * 60);
+    this.updateCityName();
 
     setInterval(() => {
       this.currentTimer += 1;
@@ -81,49 +60,16 @@ export class WeatherComponent implements OnInit {
           this.city = 'Berlin, DE';
           this.cityShort = 'Berlin';
         } else {
-          console.log(jsonResponse);
           this.city = jsonResponse.ipGeolocation.city + ', ' + jsonResponse.ipGeolocation.countryCode;
           this.cityShort = jsonResponse.ipGeolocation.city;
         }
-        this.updateWeather();
     },
         error => {
         alert('Error: ' + error.name + '\nError Message: ' + error.message);
     });
   }
 
-  updateWeather(): void {
-    if (this.city.length > 12) {
-      this.cityNameFontSize = '6vw';
-    } else if (this.city.length > 7) {
-      this.cityNameFontSize = '8vw';
-    } else {
-      this.cityNameFontSize = '10vw';
-    }
-
-    this.weatherResponseLoading = true;
-
-    const weatherResponse$ = this.weatherService.getWeatherResponseByCity(this.city);
-    weatherResponse$
-      .pipe(finalize(() => this.weatherResponseLoading = false))
-      .subscribe(r => this.weatherResponse = r);
-
-    // call updateDailyWeather for the first time
-    if (this.dailyWeatherResponse === undefined) {
-      weatherResponse$.subscribe(r => {
-        this.updateDailyWeather(r.coord);
-      });
-    }
-
-  }
-
-  updateDailyWeather(coord: Coord): void {
-    this.dailyWeatherResponseLoading = true;
-    const dailyWeatherResponse$ = this.weatherService.getDailyWeatherResponseByCoord(coord);
-    dailyWeatherResponse$
-      .pipe(finalize(() => this.dailyWeatherResponseLoading = false))
-      .subscribe(r => {
-        this.dailyWeatherResponse = r;
-      });
+  setCoord(coord: Coord): void {
+    this.coord = coord;
   }
 }

@@ -1,0 +1,42 @@
+<div class="d-flex align-self-stretch justify-content-center h-100">
+  <div class="column d-flex flex-column align-items-stretch w-100" *ngIf="!dailyWeatherResponseLoading else loading">
+    <div class="px-3 py-2 flex-row justify-content-between d-flex">
+      <div class="align-self-center display-6 badge badge-info">7-Day Forecast</div>
+      <div class="align-self-center display-6 badge badge-dark">{{this.city}}</div>
+    </div>
+    <div class="px-3 pb-3 pt-1 mx-3 flex-grow-1 d-flex flex-column justify-content-around align-items-stretch"
+         [style.padding-vertical]="'5vh'">
+      <div class="display-6 flex-column d-flex flex-grow-1" *ngFor="let dw of dailyWeatherResponse.dailyWeather.weathers; let i = index">
+        <div class="row align-self-stretch flex-grow-1 text-dark" [style.background-color]="i % 2 === 0 ? '#ddd': '#a1baa7'">
+          <div class="col-5 d-flex flex-column justify-content-center" *ngIf="i === 0">
+            <b>Today</b>
+          </div>
+          <div class="col-5 d-flex flex-column justify-content-center" *ngIf="i !== 0">
+            {{ dw.dt * 1000 | date: 'EEEE'}}
+          </div>
+
+          <div class="col-5" style="margin: -3vh"
+               [style.background-image]="'url(http://openweathermap.org/img/wn/' + dw.icon + '@4x.png)'"
+               [style.background-position]="'center center'"
+               [style.background-size]="'contain'"
+               [style.background-repeat]="'no-repeat'">
+          </div>
+          <div class="col-1 text-right d-flex flex-column justify-content-center display-5">
+            <b>{{(dw.tempMin - 273.15).toFixed(0).replace('-0', '0')}}</b>
+          </div>
+          <div class="col-1 text-right d-flex flex-column justify-content-center  display-5">
+            <b>{{(dw.tempMax - 273.15).toFixed(0).replace('-0', '0')}}</b>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #loading>
+    <div class="d-flex flex-column justify-content-center">
+      <div class="spinner-grow text-light" style="width: 3rem; height: 3rem;" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
+    </div>
+  </ng-template>
+</div>
