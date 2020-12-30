@@ -1,6 +1,10 @@
 <app-weather-default [city]="city" [cityShort]="cityShort" (notifyCoord)="setCoord($event)" *ngIf="currentPage === 0"></app-weather-default>
 
-<app-weather-seven-day-table [city]="city" [coord]="coord" *ngIf="currentPage === 1"></app-weather-seven-day-table>
+<app-weather-seven-day-chart [city]="city" [coord]="coord" *ngIf="currentPage === 1"></app-weather-seven-day-chart>
+
+<!--
+<app-weather-seven-day-table [city]="city" [coord]="coord" *ngIf="currentPage === 2"></app-weather-seven-day-table>
+-->
 
 <div class="fixed-bottom bg-secondary" style="height: 5px;">
   <div class="bg-light" [style.height.%]="100" [style.width.%]='this.currentTimer/10'></div>

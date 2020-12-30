@@ -8,6 +8,8 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { WeatherDefaultComponent } from './weather/weather-default/weather-default.component';
 import { WeatherSevenDayTableComponent } from './weather/weather-seven-day-table/weather-seven-day-table.component';
+import {ChartsModule} from 'ng2-charts';
+import { WeatherSevenDayChartComponent } from './weather/weather-seven-day-chart/weather-seven-day-chart.component';
 
 @NgModule({
   declarations: [
@@ -15,12 +17,14 @@ import { WeatherSevenDayTableComponent } from './weather/weather-seven-day-table
     WeatherComponent,
     NavigationComponent,
     WeatherDefaultComponent,
-    WeatherSevenDayTableComponent
+    WeatherSevenDayTableComponent,
+    WeatherSevenDayChartComponent
   ],
   imports: [
     BrowserModule,
     HttpClientModule,
-    AppRoutingModule
+    AppRoutingModule,
+    ChartsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

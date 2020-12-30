@@ -28,7 +28,7 @@ export class WeatherSevenDayTableComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(): void {
-    if(this.coord !== undefined) {
+    if (this.coord !== undefined) {
       this.updateDailyWeather(this.coord);
     }
   }

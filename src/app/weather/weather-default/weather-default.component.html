@@ -12,8 +12,8 @@
       <div class="d-flex flex-column justify-content-center">
         <p class="m-0 mx-auto display-5">{{weatherResponse.weather.description}}</p>
         <p class="m-0 mx-auto display-4">
-          {{(weatherResponse.weather.tempMin - 273.15).toFixed(0).replace('-0', '0')}} ～
-          {{(weatherResponse.weather.tempMax - 273.15).toFixed(0).replace('-0', '0')}} °C
+          {{(weatherResponse.weather.tempMin - 273.15).toFixed(0).replace('-0', '0')}}° ~
+          {{(weatherResponse.weather.tempMax - 273.15).toFixed(0).replace('-0', '0')}}°
         </p>
       </div>
     </div>
@@ -21,7 +21,7 @@
     <div class="col-6 p-0 d-flex flex-column p-0 h-100 justify-content-center">
       <p class="m-0 display-2" [style.fontSize]="cityNameFontSize">{{city}}</p>
       <p class="m-0 display-1">
-        {{(weatherResponse.weather.temp - 273.15).toFixed(0).replace('-0', '0')}} °C
+        {{(weatherResponse.weather.temp - 273.15).toFixed(0).replace('-0', '0')}}℃
       </p>
     </div>
   </div>
