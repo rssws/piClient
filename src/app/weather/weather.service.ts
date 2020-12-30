@@ -5,6 +5,7 @@ import {HttpClient} from '@angular/common/http';
 import {Coord} from '../model/weather/coord';
 import {JsonObject} from '@angular/compiler-cli/ngcc/src/packages/entry_point';
 import {Injectable} from '@angular/core';
+import {HourlyWeatherResponse} from '../model/weather/hourly-weather-response';
 
 @Injectable({
   providedIn: 'root'
@@ -31,6 +32,12 @@ export class WeatherService {
     return this.http
       .get<DailyWeatherResponse>(
         this.baseUrl + 'dailyWeather/coord/' + coord.lat + '/' + coord.lon + '/' + this.piServiceApiKey);
+  }
+
+  public getHourlyWeatherResponseByCoord(coord: Coord): Observable<HourlyWeatherResponse> {
+    return this.http
+      .get<HourlyWeatherResponse>(
+        this.baseUrl + 'hourlyWeather/coord/' + coord.lat + '/' + coord.lon + '/' + this.piServiceApiKey);
   }
 
   public getLocationByIP(ipAddr = ''): Observable<string> {

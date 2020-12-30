@@ -10,6 +10,7 @@ import { WeatherDefaultComponent } from './weather/weather-default/weather-defau
 import { WeatherSevenDayTableComponent } from './weather/weather-seven-day-table/weather-seven-day-table.component';
 import {ChartsModule} from 'ng2-charts';
 import { WeatherSevenDayChartComponent } from './weather/weather-seven-day-chart/weather-seven-day-chart.component';
+import { WeatherHourlyChartComponent } from './weather/weather-hourly-chart/weather-hourly-chart.component';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { WeatherSevenDayChartComponent } from './weather/weather-seven-day-chart
     NavigationComponent,
     WeatherDefaultComponent,
     WeatherSevenDayTableComponent,
-    WeatherSevenDayChartComponent
+    WeatherSevenDayChartComponent,
+    WeatherHourlyChartComponent
   ],
   imports: [
     BrowserModule,

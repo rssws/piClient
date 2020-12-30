@@ -1,10 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { WeatherResponse } from '../model/weather/weather-response';
-import { Weather } from '../model/weather/weather';
 import { ActivatedRoute } from '@angular/router';
-import {DailyWeatherResponse} from '../model/weather/daily-weather-response';
 import {Coord} from '../model/weather/coord';
-import {finalize} from 'rxjs/operators';
 import {WeatherService} from './weather.service';
 
 @Component({
@@ -13,11 +9,6 @@ import {WeatherService} from './weather.service';
   styleUrls: ['./weather.component.css']
 })
 export class WeatherComponent implements OnInit {
-
-
-  // baseUrl = 'http://localhost:31415/weather/city/';
-  // baseUrl = 'http://127.0.0.1/';
-  // city = 'Hellschen-Heringsand-Unterschaar';
   city = undefined;
   cityShort = undefined;
   coord = undefined;
@@ -45,7 +36,7 @@ export class WeatherComponent implements OnInit {
       this.currentTimer += 1;
       if (this.currentTimer === 1000) {
         this.currentTimer = 0;
-        this.currentPage = (this.currentPage + 1) % 2;
+        this.currentPage = (this.currentPage + 1) % 3;
       }
     }, 10);
   }
