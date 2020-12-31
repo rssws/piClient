@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {Coord} from '../model/weather/coord';
 import {WeatherService} from './weather.service';
+import {WeatherResponse} from '../model/weather/weather-response';
+import {DailyWeatherResponse} from '../model/weather/daily-weather-response';
+import {HourlyWeatherResponse} from '../model/weather/hourly-weather-response';
 
 @Component({
   selector: 'app-weather',
@@ -12,6 +15,10 @@ export class WeatherComponent implements OnInit {
   city = undefined;
   cityShort = undefined;
   coord = undefined;
+
+  weatherResponse: WeatherResponse;
+  dailyWeatherResponse: DailyWeatherResponse;
+  hourlyWeatherResponse: HourlyWeatherResponse;
 
   currentPage = 0;
   currentTimer = 0;
@@ -33,8 +40,18 @@ export class WeatherComponent implements OnInit {
     this.updateCityName();
 
     setInterval(() => {
+      this.weatherResponse = undefined;
+    }, 1000 * 60 * 30);
+    setInterval(() => {
+      this.dailyWeatherResponse = undefined;
+    }, 1000 * 60 * 60);
+    setInterval(() => {
+      this.hourlyWeatherResponse = undefined;
+    }, 1000 * 60 * 30);
+
+    setInterval(() => {
       this.currentTimer += 1;
-      if (this.currentTimer === 1000) {
+      if (this.currentTimer === 200) {
         this.currentTimer = 0;
         this.currentPage = (this.currentPage + 1) % 3;
       }
@@ -62,5 +79,15 @@ export class WeatherComponent implements OnInit {
 
   setCoord(coord: Coord): void {
     this.coord = coord;
+  }
+
+  setWeatherResponse(weatherResponse: WeatherResponse): void {
+    this.weatherResponse = weatherResponse;
+  }
+  setDailyWeatherResponse(dailyWeatherResponse: DailyWeatherResponse): void {
+    this.dailyWeatherResponse = dailyWeatherResponse;
+  }
+  setHourlyWeatherResponse(hourlyWeatherResponse: HourlyWeatherResponse): void {
+    this.hourlyWeatherResponse = hourlyWeatherResponse;
   }
 }

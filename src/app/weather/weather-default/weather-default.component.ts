@@ -11,12 +11,12 @@ import {Coord} from '../../model/weather/coord';
   styleUrls: ['./weather-default.component.css']
 })
 export class WeatherDefaultComponent implements OnInit, OnChanges{
-
+  @Input() weatherResponse: WeatherResponse;
   @Input() city: string;
   @Input() cityShort: string;
   @Output() notifyCoord: EventEmitter<Coord> = new EventEmitter<Coord>();
+  @Output() notifyWeatherResponse: EventEmitter<WeatherResponse> = new EventEmitter<WeatherResponse>();
 
-  weatherResponse: WeatherResponse;
   weatherResponseLoading = true;
   cityNameFontSize: string;
 
@@ -24,36 +24,18 @@ export class WeatherDefaultComponent implements OnInit, OnChanges{
     private weatherService: WeatherService
   ) { }
 
-  ngOnInit(): void {
-    this.weatherResponse = new WeatherResponse();
-    this.weatherResponse.weather = new Weather();
-    this.weatherResponse.weather.description = 'rain';
-    this.weatherResponse.weather.icon = '';
-    this.weatherResponse.weather.tempMax = undefined;
-    this.weatherResponse.weather.tempMin = undefined;
-    this.weatherResponse.weather.temp = undefined;
-
-    setInterval(() => {
-      this.updateWeather();
-    }, 1000 * 60 * 30);
-
-  }
+  ngOnInit(): void {}
 
   ngOnChanges(): void {
-    if (this.city !== undefined && this.cityShort !== undefined) {
+    if (this.weatherResponse !== undefined) {
+      this.prepareFont();
+      this.weatherResponseLoading = false;
+    } else if (this.city !== undefined) {
       this.updateWeather();
     }
   }
 
   updateWeather(): void {
-    if (this.city.length > 12) {
-      this.cityNameFontSize = '6vw';
-    } else if (this.city.length > 7) {
-      this.cityNameFontSize = '8vw';
-    } else {
-      this.cityNameFontSize = '10vw';
-    }
-
     this.weatherResponseLoading = true;
 
     const weatherResponse$ = this.weatherService.getWeatherResponseByCity(this.city);
@@ -62,14 +44,18 @@ export class WeatherDefaultComponent implements OnInit, OnChanges{
       .subscribe(r => {
         this.weatherResponse = r;
         this.notifyCoord.emit(this.weatherResponse.coord);
+        this.notifyWeatherResponse.emit(this.weatherResponse);
+        this.prepareFont();
       });
+  }
 
-    // call updateDailyWeather for the first time
-    // if (this.dailyWeatherResponse === undefined) {
-    //   weatherResponse$.subscribe(r => {
-    //     this.updateDailyWeather(r.coord);
-    //   });
-    // }
-
+  prepareFont(): void {
+    if (this.city.length > 12) {
+      this.cityNameFontSize = '6vw';
+    } else if (this.city.length > 7) {
+      this.cityNameFontSize = '8vw';
+    } else {
+      this.cityNameFontSize = '10vw';
+    }
   }
 }

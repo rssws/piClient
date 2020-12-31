@@ -1,4 +1,4 @@
-import {Component, Input, OnChanges, OnInit, ViewChild} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild} from '@angular/core';
 import {Coord} from '../../model/weather/coord';
 import {HourlyWeatherResponse} from '../../model/weather/hourly-weather-response';
 import {WeatherService} from '../weather.service';
@@ -6,19 +6,21 @@ import {ChartDataSets, ChartOptions, ChartType} from 'chart.js';
 import {BaseChartDirective, Color, Label} from 'ng2-charts';
 import {finalize} from 'rxjs/operators';
 import {DatePipe} from '@angular/common';
+import {WeatherResponse} from '../../model/weather/weather-response';
 
 @Component({
   selector: 'app-weather-hourly-chart',
   templateUrl: './weather-hourly-chart.component.html',
   styleUrls: ['./weather-hourly-chart.component.css']
 })
-export class WeatherHourlyChartComponent implements OnInit, OnChanges {
+export class WeatherHourlyChartComponent implements OnInit {
 
+  @Input() hourlyWeatherResponse: HourlyWeatherResponse;
   @Input() city: string;
   @Input() coord: Coord;
   @Input() dataLength = 24;
+  @Output() notifyHourlyWeatherResponse: EventEmitter<HourlyWeatherResponse> = new EventEmitter<HourlyWeatherResponse>();
 
-  hourlyWeatherResponse: HourlyWeatherResponse;
   hourlyWeatherResponseLoading = true;
 
   constructor(
@@ -106,40 +108,43 @@ export class WeatherHourlyChartComponent implements OnInit, OnChanges {
   @ViewChild(BaseChartDirective, { static: true }) chart: BaseChartDirective;
 
   ngOnInit(): void {
-    setInterval(() => {
-      this.updateHourlyWeather(this.coord);
-    }, 1000 * 60 * 60);
-  }
-
-  ngOnChanges(): void {
-    if (this.coord !== undefined) {
+    if (this.hourlyWeatherResponse !== undefined) {
+      this.prepareChart(this.hourlyWeatherResponse);
+      this.hourlyWeatherResponseLoading = false;
+    } else if (this.coord !== undefined) {
       this.updateHourlyWeather(this.coord);
     }
   }
+
 
   updateHourlyWeather(coord: Coord): void {
     this.hourlyWeatherResponseLoading = true;
     const hourlyWeatherResponse$ = this.weatherService.getHourlyWeatherResponseByCoord(coord);
     hourlyWeatherResponse$
-      .pipe(finalize(() => this.hourlyWeatherResponseLoading = false))
       .subscribe(r => {
         this.hourlyWeatherResponse = r;
-        const weathers = r.hourlyWeather.weathers.slice(0, this.dataLength);
-        const temp: ChartDataSets = { data: [], label: 'current' };
-        temp.data = weathers.map(weather => {
-          return parseFloat((weather.temp - 273.15).toFixed(1));
-        });
-        this.lineChartLabels = weathers.map((weather, index) => {
-          if (index === 0) {
-            return 'now';
-          }
-          return new DatePipe('en-US').transform(weather.dt * 1000 , 'H');
-        });
-
-        this.images = weathers.map(weather => {
-          return 'https://openweathermap.org/img/wn/' + weather.icon + '.png';
-        });
-        this.lineChartData.push(temp);
+        this.notifyHourlyWeatherResponse.emit(r);
+        this.prepareChart(r);
+        this.hourlyWeatherResponseLoading = false;
       });
+  }
+
+  prepareChart(hourlyWeatherResponse: HourlyWeatherResponse): void {
+    const weathers = hourlyWeatherResponse.hourlyWeather.weathers.slice(0, this.dataLength);
+    const temp: ChartDataSets = { data: [], label: 'current' };
+    temp.data = weathers.map(weather => {
+      return parseFloat((weather.temp - 273.15).toFixed(1));
+    });
+    this.lineChartLabels = weathers.map((weather, index) => {
+      if (index === 0) {
+        return 'now';
+      }
+      return new DatePipe('en-US').transform(weather.dt * 1000 , 'H');
+    });
+
+    this.images = weathers.map(weather => {
+      return 'https://openweathermap.org/img/wn/' + weather.icon + '.png';
+    });
+    this.lineChartData.push(temp);
   }
 }

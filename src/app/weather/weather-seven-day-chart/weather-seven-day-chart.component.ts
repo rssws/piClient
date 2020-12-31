@@ -1,23 +1,25 @@
-import {Component, Input, OnChanges, OnInit, ViewChild} from '@angular/core';
-import {ChartData, ChartDataSets, ChartOptions, ChartType} from 'chart.js';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, ViewChild} from '@angular/core';
+import {ChartData, ChartDataSets, ChartLineOptions, ChartOptions, ChartType} from 'chart.js';
 import { Color, BaseChartDirective, Label } from 'ng2-charts';
 import {Coord} from '../../model/weather/coord';
 import {DailyWeatherResponse} from '../../model/weather/daily-weather-response';
 import {WeatherService} from '../weather.service';
 import {finalize} from 'rxjs/operators';
 import {DatePipe} from '@angular/common';
+import {WeatherResponse} from '../../model/weather/weather-response';
 
 @Component({
   selector: 'app-weather-seven-day-chart',
   templateUrl: './weather-seven-day-chart.component.html',
   styleUrls: ['./weather-seven-day-chart.component.css']
 })
-export class WeatherSevenDayChartComponent implements OnInit, OnChanges {
+export class WeatherSevenDayChartComponent implements OnInit {
 
   @Input() city: string;
   @Input() coord: Coord;
+  @Input() dailyWeatherResponse: DailyWeatherResponse;
+  @Output() notifyDailyWeatherResponse: EventEmitter<DailyWeatherResponse> = new EventEmitter<DailyWeatherResponse>();
 
-  dailyWeatherResponse: DailyWeatherResponse;
   dailyWeatherResponseLoading = true;
 
   constructor(
@@ -55,7 +57,7 @@ export class WeatherSevenDayChartComponent implements OnInit, OnChanges {
         top: 0,
         bottom: 40
       }
-    }
+    },
   };
 
   images: string[];
@@ -74,7 +76,7 @@ export class WeatherSevenDayChartComponent implements OnInit, OnChanges {
   }];
 
   public lineChartColors: Color[] = [
-    { // grey
+    {
       backgroundColor: 'rgba(63,165,255,0.2)',
       borderColor: 'rgba(63,165,255,1)',
       pointBackgroundColor: 'rgba(63,165,255,1)',
@@ -82,7 +84,7 @@ export class WeatherSevenDayChartComponent implements OnInit, OnChanges {
       pointHoverBackgroundColor: '#fff',
       pointHoverBorderColor: 'rgba(63,165,255,1)'
     },
-    { // dark grey
+    {
       backgroundColor: 'rgba(205,229,255,0.2)',
       borderColor: 'rgb(205,229,255)',
       pointBackgroundColor: 'rgba(205,229,255,1)',
@@ -97,13 +99,10 @@ export class WeatherSevenDayChartComponent implements OnInit, OnChanges {
   @ViewChild(BaseChartDirective, { static: true }) chart: BaseChartDirective;
 
   ngOnInit(): void {
-    setInterval(() => {
-      this.updateDailyWeather(this.coord);
-    }, 1000 * 60 * 60);
-  }
-
-  ngOnChanges(): void {
-    if (this.coord !== undefined) {
+    if (this.dailyWeatherResponse !== undefined) {
+      this.prepareChart(this.dailyWeatherResponse);
+      this.dailyWeatherResponseLoading = false;
+    } else if (this.coord !== undefined) {
       this.updateDailyWeather(this.coord);
     }
   }
@@ -112,28 +111,33 @@ export class WeatherSevenDayChartComponent implements OnInit, OnChanges {
     this.dailyWeatherResponseLoading = true;
     const dailyWeatherResponse$ = this.weatherService.getDailyWeatherResponseByCoord(coord);
     dailyWeatherResponse$
-      .pipe(finalize(() => this.dailyWeatherResponseLoading = false))
       .subscribe(r => {
         this.dailyWeatherResponse = r;
-        const tempMax: ChartDataSets = { data: [], label: 'max' };
-        const tempMin: ChartDataSets = { data: [], label: 'min' };
-        tempMax.data = r.dailyWeather.weathers.map(weather => {
-          return parseFloat((weather.tempMax - 273.15).toFixed(1));
-        });
-        tempMin.data = r.dailyWeather.weathers.map(weather => {
-          return parseFloat((weather.tempMin - 273.15).toFixed(1));
-        });
-        this.lineChartLabels = r.dailyWeather.weathers.map((weather, index) => {
-          if (index === 0) {
-            return 'Today';
-          }
-          return new DatePipe('en-US').transform(weather.dt * 1000 , 'E');
-        });
-
-        this.images = r.dailyWeather.weathers.map(weather => {
-          return 'https://openweathermap.org/img/wn/' + weather.icon + '.png';
-        });
-        this.lineChartData.push(tempMin, tempMax);
+        this.notifyDailyWeatherResponse.emit(r);
+        this.prepareChart(r);
+        this.dailyWeatherResponseLoading = false;
       });
+  }
+
+  prepareChart(dailyWeatherResponse: DailyWeatherResponse): void {
+    const tempMax: ChartDataSets = { data: [], label: 'max', fill: 'origin' };
+    const tempMin: ChartDataSets = { data: [], label: 'min', fill: 'origin'  };
+    tempMax.data = dailyWeatherResponse.dailyWeather.weathers.map(weather => {
+      return parseFloat((weather.tempMax - 273.15).toFixed(1));
+    });
+    tempMin.data = dailyWeatherResponse.dailyWeather.weathers.map(weather => {
+      return parseFloat((weather.tempMin - 273.15).toFixed(1));
+    });
+    this.lineChartLabels = dailyWeatherResponse.dailyWeather.weathers.map((weather, index) => {
+      if (index === 0) {
+        return 'Today';
+      }
+      return new DatePipe('en-US').transform(weather.dt * 1000 , 'E');
+    });
+
+    this.images = dailyWeatherResponse.dailyWeather.weathers.map(weather => {
+      return 'https://openweathermap.org/img/wn/' + weather.icon + '.png';
+    });
+    this.lineChartData.push(tempMin, tempMax);
   }
 }
