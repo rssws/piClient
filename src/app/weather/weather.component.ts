@@ -51,7 +51,7 @@ export class WeatherComponent implements OnInit {
 
     setInterval(() => {
       this.currentTimer += 1;
-      if (this.currentTimer === 200) {
+      if (this.currentTimer === 1000) {
         this.currentTimer = 0;
         this.currentPage = (this.currentPage + 1) % 3;
       }
