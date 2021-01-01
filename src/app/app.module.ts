@@ -7,7 +7,6 @@ import { NavigationComponent } from './navigation/navigation.component';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { WeatherDefaultComponent } from './weather/weather-default/weather-default.component';
-import { WeatherSevenDayTableComponent } from './weather/weather-seven-day-table/weather-seven-day-table.component';
 import {ChartsModule} from 'ng2-charts';
 import { WeatherSevenDayChartComponent } from './weather/weather-seven-day-chart/weather-seven-day-chart.component';
 import { WeatherHourlyChartComponent } from './weather/weather-hourly-chart/weather-hourly-chart.component';
@@ -18,7 +17,6 @@ import { WeatherHourlyChartComponent } from './weather/weather-hourly-chart/weat
     WeatherComponent,
     NavigationComponent,
     WeatherDefaultComponent,
-    WeatherSevenDayTableComponent,
     WeatherSevenDayChartComponent,
     WeatherHourlyChartComponent
   ],

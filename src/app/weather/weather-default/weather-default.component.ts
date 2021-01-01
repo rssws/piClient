@@ -19,6 +19,7 @@ export class WeatherDefaultComponent implements OnInit, OnChanges{
 
   weatherResponseLoading = true;
   cityNameFontSize: string;
+  errorMessage: string;
 
   constructor(
     private weatherService: WeatherService
@@ -36,16 +37,19 @@ export class WeatherDefaultComponent implements OnInit, OnChanges{
   }
 
   updateWeather(): void {
-    this.weatherResponseLoading = true;
-
     const weatherResponse$ = this.weatherService.getWeatherResponseByCity(this.city);
     weatherResponse$
-      .pipe(finalize(() => this.weatherResponseLoading = false))
       .subscribe(r => {
         this.weatherResponse = r;
         this.notifyCoord.emit(this.weatherResponse.coord);
         this.notifyWeatherResponse.emit(this.weatherResponse);
         this.prepareFont();
+        this.weatherResponseLoading = false;
+        this.errorMessage = undefined;
+      }, error => {
+        this.weatherResponseLoading = true;
+        this.errorMessage = error.message;
+        setTimeout(this.updateWeather.bind(this), 5000);
       });
   }
 

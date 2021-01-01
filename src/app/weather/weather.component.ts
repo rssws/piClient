@@ -20,6 +20,9 @@ export class WeatherComponent implements OnInit {
   dailyWeatherResponse: DailyWeatherResponse;
   hourlyWeatherResponse: HourlyWeatherResponse;
 
+  errorMessage: string;
+  locationLoading = true;
+
   currentPage = 0;
   currentTimer = 0;
 
@@ -40,22 +43,15 @@ export class WeatherComponent implements OnInit {
     this.updateCityName();
 
     setInterval(() => {
-      this.weatherResponse = undefined;
-    }, 1000 * 60 * 30);
-    setInterval(() => {
-      this.dailyWeatherResponse = undefined;
-    }, 1000 * 60 * 60);
-    setInterval(() => {
-      this.hourlyWeatherResponse = undefined;
-    }, 1000 * 60 * 30);
-
-    setInterval(() => {
       this.currentTimer += 1;
       if (this.currentTimer === 1000) {
         this.currentTimer = 0;
-        this.currentPage = (this.currentPage + 1) % 3;
+        if (!this.locationLoading) {
+          this.currentPage = (this.currentPage + 1) % 3;
+        }
       }
     }, 10);
+
   }
 
   updateCityName(): void {
@@ -71,9 +67,22 @@ export class WeatherComponent implements OnInit {
           this.city = jsonResponse.ipGeolocation.city + ', ' + jsonResponse.ipGeolocation.countryCode;
           this.cityShort = jsonResponse.ipGeolocation.city;
         }
+
+        setInterval(() => {
+          this.weatherResponse = undefined;
+        }, 1000 * 60 * 30);
+        setInterval(() => {
+          this.dailyWeatherResponse = undefined;
+        }, 1000 * 60 * 60);
+        setInterval(() => {
+          this.hourlyWeatherResponse = undefined;
+        }, 1000 * 60 * 30);
+        this.locationLoading = false;
+        this.errorMessage = undefined;
     },
         error => {
-        alert('Error: ' + error.name + '\nError Message: ' + error.message);
+        this.errorMessage = '[Error Message]: ' + error.message;
+        setTimeout(this.updateCityName.bind(this), 10000);
     });
   }
 

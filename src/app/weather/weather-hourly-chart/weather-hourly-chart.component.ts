@@ -22,6 +22,7 @@ export class WeatherHourlyChartComponent implements OnInit {
   @Output() notifyHourlyWeatherResponse: EventEmitter<HourlyWeatherResponse> = new EventEmitter<HourlyWeatherResponse>();
 
   hourlyWeatherResponseLoading = true;
+  errorMessage: string;
 
   constructor(
     private weatherService: WeatherService
@@ -126,6 +127,10 @@ export class WeatherHourlyChartComponent implements OnInit {
         this.notifyHourlyWeatherResponse.emit(r);
         this.prepareChart(r);
         this.hourlyWeatherResponseLoading = false;
+      }, error => {
+        this.hourlyWeatherResponseLoading = true;
+        this.errorMessage = error.message;
+        setTimeout(this.updateHourlyWeather.bind(this), 5000);
       });
   }
 

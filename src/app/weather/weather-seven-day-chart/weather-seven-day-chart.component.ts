@@ -21,6 +21,7 @@ export class WeatherSevenDayChartComponent implements OnInit {
   @Output() notifyDailyWeatherResponse: EventEmitter<DailyWeatherResponse> = new EventEmitter<DailyWeatherResponse>();
 
   dailyWeatherResponseLoading = true;
+  errorMessage: string;
 
   constructor(
     private weatherService: WeatherService
@@ -108,7 +109,6 @@ export class WeatherSevenDayChartComponent implements OnInit {
   }
 
   updateDailyWeather(coord: Coord): void {
-    this.dailyWeatherResponseLoading = true;
     const dailyWeatherResponse$ = this.weatherService.getDailyWeatherResponseByCoord(coord);
     dailyWeatherResponse$
       .subscribe(r => {
@@ -116,6 +116,11 @@ export class WeatherSevenDayChartComponent implements OnInit {
         this.notifyDailyWeatherResponse.emit(r);
         this.prepareChart(r);
         this.dailyWeatherResponseLoading = false;
+        this.errorMessage = undefined;
+      }, error => {
+        this.dailyWeatherResponseLoading = true;
+        this.errorMessage = error.message;
+        setTimeout(this.updateDailyWeather.bind(this), 5000);
       });
   }
 
