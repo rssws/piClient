@@ -1,9 +1,8 @@
 import {Component, EventEmitter, Input, OnChanges, OnInit, Output} from '@angular/core';
 import {WeatherResponse} from '../../model/weather/weather-response';
-import {Weather} from '../../model/weather/weather';
 import {WeatherService} from '../weather.service';
-import {finalize} from 'rxjs/operators';
 import {Coord} from '../../model/weather/coord';
+
 
 @Component({
   selector: 'app-weather-default',
@@ -28,11 +27,14 @@ export class WeatherDefaultComponent implements OnInit, OnChanges{
   ngOnInit(): void {}
 
   ngOnChanges(): void {
+    this.weatherResponseLoading = true;
     if (this.weatherResponse !== undefined) {
       this.prepareFont();
       this.weatherResponseLoading = false;
     } else if (this.city !== undefined) {
       this.updateWeather();
+    } else {
+      this.errorMessage = '[Error]: City name is empty!';
     }
   }
 

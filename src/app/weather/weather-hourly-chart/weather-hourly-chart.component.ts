@@ -45,25 +45,43 @@ export class WeatherHourlyChartComponent implements OnInit {
         },
         gridLines: { color: 'rgba(255,255,255,0.1)' }
       }],
-      yAxes: [{
-        ticks: {
-          // There is no precision attribute in ng2-charts but in Chart.js. So ignore the warning.
-          // @ts-ignore
-          precision: 0,
-          beginAtZero: true,
-          fontColor: 'white',
-          fontSize: 20,
-          callback: (value, index, values) => {
-            return value + '°';
-          }
+      yAxes: [
+        {
+          id: 'y-axis-0',
+          position: 'left',
+          ticks: {
+            // There is no precision attribute in ng2-charts but in Chart.js. So ignore the warning.
+            // @ts-ignore
+            precision: 0,
+            beginAtZero: true,
+            fontColor: 'white',
+            fontSize: 15,
+            callback: (value, index, values) => {
+              return value + '°';
+            }
+          },
+          gridLines: { color: 'rgba(255,255,255,0.1)' }
         },
-        gridLines: { color: 'rgba(255,255,255,0.1)' }
-      }]
+        {
+          id: 'y-axis-1',
+          position: 'right',
+          ticks: {
+            max: 1,
+            stepSize: 0.2,
+            beginAtZero: true,
+            fontColor: 'white',
+            fontSize: 10,
+            callback: (value, index, values) => {
+              return ((value as number) * 100) + '%';
+            }
+          },
+        },
+      ]
     },
     layout: {
       padding: {
         left: 0,
-        right: 15,
+        right: 0,
         top: 0,
         bottom: 15
       }
@@ -88,38 +106,40 @@ export class WeatherHourlyChartComponent implements OnInit {
   public lineChartColors: Color[] = [
     {
       backgroundColor: 'rgba(63,165,255,0.2)',
-      borderColor: 'rgba(63,165,255,1)',
-      pointBackgroundColor: 'rgba(63,165,255,1)',
+      borderColor: 'rgb(63,165,255,1)',
+      pointBackgroundColor: 'rgb(63,165,255)',
       pointBorderColor: '#fff',
       pointHoverBackgroundColor: '#fff',
-      pointHoverBorderColor: 'rgba(63,165,255,1)'
+      pointHoverBorderColor: 'rgb(63,165,255)'
     },
-    // {
-    //   backgroundColor: 'rgba(205,229,255,0.2)',
-    //   borderColor: 'rgb(205,229,255)',
-    //   pointBackgroundColor: 'rgba(205,229,255,1)',
-    //   pointBorderColor: '#fff',
-    //   pointHoverBackgroundColor: '#fff',
-    //   pointHoverBorderColor: 'rgba(205,229,255,1)'
-    // },
+    {
+      backgroundColor: 'rgba(205,229,255,0.6)',
+      borderColor: 'rgb(205,229,255)',
+      pointBackgroundColor: 'rgba(205,229,255)',
+      pointBorderColor: '#fff',
+      pointHoverBackgroundColor: '#fff',
+      pointHoverBorderColor: 'rgba(205,229,255)'
+    },
   ];
-  public lineChartLegend = false;
+  public lineChartLegend = true;
   public lineChartType: ChartType = 'line';
 
   @ViewChild(BaseChartDirective, { static: true }) chart: BaseChartDirective;
 
   ngOnInit(): void {
+    this.hourlyWeatherResponseLoading = true;
     if (this.hourlyWeatherResponse !== undefined) {
       this.prepareChart(this.hourlyWeatherResponse);
       this.hourlyWeatherResponseLoading = false;
     } else if (this.coord !== undefined) {
       this.updateHourlyWeather(this.coord);
+    } else {
+      this.errorMessage = '[Error]: coord is empty!';
     }
   }
 
 
   updateHourlyWeather(coord: Coord): void {
-    this.hourlyWeatherResponseLoading = true;
     const hourlyWeatherResponse$ = this.weatherService.getHourlyWeatherResponseByCoord(coord);
     hourlyWeatherResponse$
       .subscribe(r => {
@@ -136,9 +156,13 @@ export class WeatherHourlyChartComponent implements OnInit {
 
   prepareChart(hourlyWeatherResponse: HourlyWeatherResponse): void {
     const weathers = hourlyWeatherResponse.hourlyWeather.weathers.slice(0, this.dataLength);
-    const temp: ChartDataSets = { data: [], label: 'current' };
+    const temp: ChartDataSets = { data: [], label: 'Temperature' };
+    const pop: ChartDataSets = { data: [], label: 'Probability of precipitation', type: 'bar', yAxisID: 'y-axis-1' };
     temp.data = weathers.map(weather => {
       return parseFloat((weather.temp - 273.15).toFixed(1));
+    });
+    pop.data = weathers.map(weather => {
+      return weather.pop;
     });
     this.lineChartLabels = weathers.map((weather, index) => {
       if (index === 0) {
@@ -150,6 +174,6 @@ export class WeatherHourlyChartComponent implements OnInit {
     this.images = weathers.map(weather => {
       return 'https://openweathermap.org/img/wn/' + weather.icon + '.png';
     });
-    this.lineChartData.push(temp);
+    this.lineChartData.push(temp, pop);
   }
 }

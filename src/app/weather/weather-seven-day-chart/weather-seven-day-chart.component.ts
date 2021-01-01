@@ -40,23 +40,45 @@ export class WeatherSevenDayChartComponent implements OnInit {
         ticks: { fontColor: 'white', fontSize: 15 },
         gridLines: { color: 'rgba(255,255,255,0.1)' }
       }],
-      yAxes: [{
-        ticks: {
-          fontColor: 'white',
-          fontSize: 20,
-          callback: (value, index, values) => {
-            return value + '°';
-          }
+      yAxes: [
+        {
+          id: 'y-axis-0',
+          position: 'left',
+          ticks: {
+            // There is no precision attribute in ng2-charts but in Chart.js. So ignore the warning.
+            // @ts-ignore
+            precision: 0,
+            beginAtZero: true,
+            fontColor: 'white',
+            fontSize: 15,
+            callback: (value, index, values) => {
+              return value + '°';
+            }
+          },
+          gridLines: { color: 'rgba(255,255,255,0.1)' }
         },
-        gridLines: { color: 'rgba(255,255,255,0.1)' }
-      }]
+        {
+          id: 'y-axis-1',
+          position: 'right',
+          ticks: {
+            max: 1,
+            stepSize: 0.2,
+            beginAtZero: true,
+            fontColor: 'white',
+            fontSize: 10,
+            callback: (value, index, values) => {
+              return ((value as number) * 100) + '%';
+            }
+          },
+        },
+      ]
     },
     layout: {
       padding: {
         left: 0,
-        right: 15,
+        right: 0,
         top: 0,
-        bottom: 40
+        bottom: 30
       }
     },
   };
@@ -71,7 +93,7 @@ export class WeatherSevenDayChartComponent implements OnInit {
         const x = xAxis.getPixelForTick(index);
         const image = new Image();
         image.src = this.images[index],
-          ctx.drawImage(image, x - 25, yAxis.bottom + 25);
+          ctx.drawImage(image, x - 22.5, yAxis.bottom + 25, 45, 45);
       });
     }
   }];
@@ -86,25 +108,36 @@ export class WeatherSevenDayChartComponent implements OnInit {
       pointHoverBorderColor: 'rgba(63,165,255,1)'
     },
     {
-      backgroundColor: 'rgba(205,229,255,0.2)',
-      borderColor: 'rgb(205,229,255)',
-      pointBackgroundColor: 'rgba(205,229,255,1)',
+      backgroundColor: 'rgba(255,182,0,0.2)',
+      borderColor: 'rgb(255,182,0)',
+      pointBackgroundColor: 'rgba(255,182,0,1)',
       pointBorderColor: '#fff',
       pointHoverBackgroundColor: '#fff',
-      pointHoverBorderColor: 'rgba(205,229,255,1)'
+      pointHoverBorderColor: 'rgba(255,182,0,1)'
+    },
+    {
+      backgroundColor: 'rgba(205,229,255,0.6)',
+      borderColor: 'rgb(205,229,255)',
+      pointBackgroundColor: 'rgba(205,229,255)',
+      pointBorderColor: '#fff',
+      pointHoverBackgroundColor: '#fff',
+      pointHoverBorderColor: 'rgba(205,229,255)'
     },
   ];
-  public lineChartLegend = false;
+  public lineChartLegend = true;
   public lineChartType: ChartType = 'line';
 
   @ViewChild(BaseChartDirective, { static: true }) chart: BaseChartDirective;
 
   ngOnInit(): void {
+    this.dailyWeatherResponseLoading = true;
     if (this.dailyWeatherResponse !== undefined) {
       this.prepareChart(this.dailyWeatherResponse);
       this.dailyWeatherResponseLoading = false;
     } else if (this.coord !== undefined) {
       this.updateDailyWeather(this.coord);
+    } else {
+      this.errorMessage = '[Error]: coord is empty!';
     }
   }
 
@@ -126,12 +159,16 @@ export class WeatherSevenDayChartComponent implements OnInit {
 
   prepareChart(dailyWeatherResponse: DailyWeatherResponse): void {
     const tempMax: ChartDataSets = { data: [], label: 'max', fill: 'origin' };
-    const tempMin: ChartDataSets = { data: [], label: 'min', fill: 'origin'  };
+    const tempMin: ChartDataSets = { data: [], label: 'min', fill: 'origin' };
+    const pop: ChartDataSets = { data: [], label: 'Probability of precipitation', type: 'bar', yAxisID: 'y-axis-1' };
     tempMax.data = dailyWeatherResponse.dailyWeather.weathers.map(weather => {
       return parseFloat((weather.tempMax - 273.15).toFixed(1));
     });
     tempMin.data = dailyWeatherResponse.dailyWeather.weathers.map(weather => {
       return parseFloat((weather.tempMin - 273.15).toFixed(1));
+    });
+    pop.data = dailyWeatherResponse.dailyWeather.weathers.map(weather => {
+      return weather.pop;
     });
     this.lineChartLabels = dailyWeatherResponse.dailyWeather.weathers.map((weather, index) => {
       if (index === 0) {
@@ -143,6 +180,6 @@ export class WeatherSevenDayChartComponent implements OnInit {
     this.images = dailyWeatherResponse.dailyWeather.weathers.map(weather => {
       return 'https://openweathermap.org/img/wn/' + weather.icon + '.png';
     });
-    this.lineChartData.push(tempMin, tempMax);
+    this.lineChartData.push(tempMin, tempMax, pop);
   }
 }
