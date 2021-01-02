@@ -7,6 +7,7 @@ import {BaseChartDirective, Color, Label} from 'ng2-charts';
 import {finalize} from 'rxjs/operators';
 import {DatePipe} from '@angular/common';
 import {WeatherResponse} from '../../model/weather/weather-response';
+import {ResponseStatus} from '../../model/response-status.enum';
 
 @Component({
   selector: 'app-weather-hourly-chart',
@@ -143,6 +144,11 @@ export class WeatherHourlyChartComponent implements OnInit {
     const hourlyWeatherResponse$ = this.weatherService.getHourlyWeatherResponseByCoord(coord);
     hourlyWeatherResponse$
       .subscribe(r => {
+        if (r.responseStatus.toString() !== 'SUCCESS') {
+          this.hourlyWeatherResponseLoading = true;
+          this.errorMessage = r.responseMessage;
+          return;
+        }
         this.hourlyWeatherResponse = r;
         this.notifyHourlyWeatherResponse.emit(r);
         this.prepareChart(r);
@@ -150,7 +156,7 @@ export class WeatherHourlyChartComponent implements OnInit {
       }, error => {
         this.hourlyWeatherResponseLoading = true;
         this.errorMessage = error.message;
-        setTimeout(this.updateHourlyWeather.bind(this), 5000);
+        setTimeout(this.updateHourlyWeather.bind(this), 6000);
       });
   }
 

@@ -7,6 +7,7 @@ import {WeatherService} from '../weather.service';
 import {finalize} from 'rxjs/operators';
 import {DatePipe} from '@angular/common';
 import {WeatherResponse} from '../../model/weather/weather-response';
+import {ResponseStatus} from '../../model/response-status.enum';
 
 @Component({
   selector: 'app-weather-seven-day-chart',
@@ -145,6 +146,11 @@ export class WeatherSevenDayChartComponent implements OnInit {
     const dailyWeatherResponse$ = this.weatherService.getDailyWeatherResponseByCoord(coord);
     dailyWeatherResponse$
       .subscribe(r => {
+        if (r.responseStatus.toString() !== 'SUCCESS') {
+          this.dailyWeatherResponseLoading = true;
+          this.errorMessage = r.responseMessage;
+          return;
+        }
         this.dailyWeatherResponse = r;
         this.notifyDailyWeatherResponse.emit(r);
         this.prepareChart(r);
@@ -153,7 +159,7 @@ export class WeatherSevenDayChartComponent implements OnInit {
       }, error => {
         this.dailyWeatherResponseLoading = true;
         this.errorMessage = error.message;
-        setTimeout(this.updateDailyWeather.bind(this), 5000);
+        setTimeout(this.updateDailyWeather.bind(this), 6000);
       });
   }
 

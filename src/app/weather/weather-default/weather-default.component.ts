@@ -2,7 +2,7 @@ import {Component, EventEmitter, Input, OnChanges, OnInit, Output} from '@angula
 import {WeatherResponse} from '../../model/weather/weather-response';
 import {WeatherService} from '../weather.service';
 import {Coord} from '../../model/weather/coord';
-
+import {ResponseStatus} from '../../model/response-status.enum';
 
 @Component({
   selector: 'app-weather-default',
@@ -42,6 +42,11 @@ export class WeatherDefaultComponent implements OnInit, OnChanges{
     const weatherResponse$ = this.weatherService.getWeatherResponseByCity(this.city);
     weatherResponse$
       .subscribe(r => {
+        if (r.responseStatus.toString() !== 'SUCCESS') {
+          this.weatherResponseLoading = true;
+          this.errorMessage = r.responseMessage;
+          return;
+        }
         this.weatherResponse = r;
         this.notifyCoord.emit(this.weatherResponse.coord);
         this.notifyWeatherResponse.emit(this.weatherResponse);
@@ -51,7 +56,7 @@ export class WeatherDefaultComponent implements OnInit, OnChanges{
       }, error => {
         this.weatherResponseLoading = true;
         this.errorMessage = error.message;
-        setTimeout(this.updateWeather.bind(this), 5000);
+        setTimeout(this.updateWeather.bind(this), 6000);
       });
   }
 
