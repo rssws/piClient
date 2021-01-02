@@ -27,25 +27,21 @@
     </div>
     <div class="d-flex flex-row justify-content-around py-3 w-100 px-4">
       <div class="m-0 display-6 px-2">
-        <i class="material-icons" style="font-size: 2.5vw">mood</i>
-        Feels like: <br/>
-        <b>{{(weatherResponse.weather.feelsLike - 273.15).toFixed(0).replace('-0', '0')}}℃</b>
+        <p class="display-6 m-0"><i class="material-icons" style="font-size: 2.5vw">mood</i> Feels like:</p>
+        <p class="display-5 m-0"><b>{{(weatherResponse.weather.feelsLike - 273.15).toFixed(0).replace('-0', '0')}}℃</b></p>
       </div>
       <div class="m-0 display-6 px-2">
-        <i class="material-icons" style="font-size: 2.5vw">slow_motion_video</i>
-        Pressure: <br/>
-        <b>{{(weatherResponse.weather.pressure).toFixed(0).replace('-0', '0')}} hPa</b>
+        <p class="display-6 m-0"><i class="material-icons" style="font-size: 2.5vw">slow_motion_video</i> Pressure: </p>
+        <p class="display-5 m-0"><b>{{(weatherResponse.weather.pressure).toFixed(0).replace('-0', '0')}} hPa</b></p>
       </div>
       <div class="m-0 display-6 px-2">
-        <i class="material-icons" style="font-size: 2.5vw">opacity</i>
-        Humidity: <br/>
-        <b>{{(weatherResponse.weather.humidity).toFixed(0).replace('-0', '0')}}%</b>
+        <p class="display-6 m-0"><i class="material-icons" style="font-size: 2.5vw">opacity</i> Humidity: </p>
+        <p class="display-5 m-0"><b>{{(weatherResponse.weather.humidity).toFixed(0).replace('-0', '0')}}%</b></p>
       </div>
       <div class="m-0 display-6 px-2">
-        <i class="material-icons" style="font-size: 2.5vw">toys</i>
-        Wind: <br/>
-        <b>{{(weatherResponse.weather.windSpeed).toFixed(0).replace('-0', '0')}} m/s,
-          {{(weatherResponse.weather.windDeg).toFixed(0).replace('-0', '0')}}°</b>
+        <p class="display-6 m-0"><i class="material-icons" style="font-size: 2.5vw">toys</i> Wind: </p>
+        <p class="display-5 m-0"><b>{{(weatherResponse.weather.windSpeed).toFixed(0).replace('-0', '0')}} m/s,
+          {{(weatherResponse.weather.windDeg).toFixed(0).replace('-0', '0')}}°</b></p>
       </div>
     </div>
   </div>
